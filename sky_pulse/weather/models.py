@@ -7,6 +7,9 @@ class City(models.Model):
     is_watchlisted = models.BooleanField(default=False)
     last_updated = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        verbose_name_plural = 'cities'
+
     def __str__(self):
         return f"{self.name}, {self.country}"
 

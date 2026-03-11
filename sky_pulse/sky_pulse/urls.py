@@ -22,4 +22,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.HomeView.as_view(), name='home'),
     path('countries/', views.CityListView.as_view(), name='country-list'),
+    path('api/cities/', views.CitySearchView.as_view(), name='api-cities'),
+    path('api/toggle-watch/<int:pk>/', views.ToggleWatchView.as_view(), name='api-toggle-watch'),
+    path('api/cities/add/', views.CityCreateView.as_view(), name='api-city-create'),
 ]

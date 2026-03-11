@@ -12,25 +12,261 @@ body {
     box-shadow: 0 0 10px cyan;
     padding: 20px;
     color: white;
-    height: 700px;
-    width: 800px;
+    height: 800px;
+    width: 1000px;
     display: flex;
     flex-direction: column;
+    border-radius: 8px;
+}
+
+
+.content-area {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    width: 95%;
+    /* fallback explicit height: subtract header height + paddings */
+    height: calc(100% - 160px);
     align-items: center;
+    justify-content: flex-start;
+    box-sizing: border-box;
 }
 
-.container h1, .container p {
-    margin: 0.25em 0;
-    color:rgb(2, 184, 184);
+.brand-icon {
+    font-size: 2.1rem;
+    line-height: 1;
+    filter: drop-shadow(0 6px 10px rgba(0,0,0,0.6));
+    transform: translateY(-2px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+    background: linear-gradient(180deg,#7dd3fc,#0284c7);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 2px 8px rgba(2,6,23,0.6);
 }
 
-.glass {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 1.5rem;
+.brand-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: cyan;
+    text-shadow: 0 3px 10px rgba(2,6,23,0.55);
+    display: inline-block;
+    vertical-align: middle;
 }
+
+/* Optional compact header alignment */
+.header-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.box {
+    width: 100%;
+    /* use explicit heights to ensure stacked layout */
+    height: calc((100% - 36px) / 3); /* divide remaining space between 3 boxes, account for gaps */
+    border: 2px solid rgba(2,184,184,0.15);
+    box-shadow: 0 0 8px rgba(255,255,255,0.03);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.03);
+    color: rgb(2,184,184);
+    box-sizing: border-box;
+}
+
 .storm-glow {
     box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
     border: 1px solid rgba(239, 68, 68, 0.8) !important;
+}
+
+.header-div {
+    width: 95%;
+    height: 140px;
+    margin-bottom: 20px;
+    border: 2px solid cyan;
+    box-shadow: 0 0 10px white;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* The Top Box */
+.top-box {
+    color: cyan;
+    padding: 40px;
+    text-align: center;
+    font-weight: bold;
+    font-size: large;
+    border-radius: 8px;
+    height: 20px;
+    border: 2px solid cyan;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    margin: 10px 10px 10px 10px;
+}
+
+/* position add button at left-most corner of the header */
+.top-box { position: relative; }
+.header-add-btn {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+}
+
+/* The Column Wrapper */
+.bottom-row {
+    margin: 30px 10px 10px 10px;
+    flex: 1 1 calc(50% - 20px);
+    display: flex;
+    flex-direction: row; /* arrange columns horizontally */
+    gap: 20px; /* Space between the three columns */
+    flex-wrap: wrap; /* allow wrapping on small screens */
+    align-items: stretch;
+}
+
+/* Individual Columns */
+.column {
+    flex: 1 1 0; /* grow/shrink equally */
+    min-width: 220px; /* keep reasonable column width on narrow screens */
+    color: white;
+    padding: 30px;
+    text-align: center;
+    border-radius: 8px;
+    box-sizing: border-box;
+    border: 2px solid cyan;
+    box-shadow: 0 0 10px white;
+}
+
+/* Add inner shadow for depth */
+.column {
+    box-shadow: inset 0 8px 18px cyan, inset 0 -4px 8px cyan;
+}
+
+.top-box {
+    box-shadow: inset 0 8px 10px cyan, inset 0 -4px 8px cyan;
+}
+
+/* Set width ratio for the three top boxes: 3 : 5 : 1 */
+.bottom-row .column:nth-child(1) { flex: 3 1 0; }
+.bottom-row .column:nth-child(2) { flex: 5 1 0; }
+.bottom-row .column:nth-child(3) { flex: 1 1 0; }
+
+/* Responsive tweak: Stack columns on small screens */
+@media (max-width: 600px) {
+    .bottom-row {
+        flex-direction: column;
+    }
+}
+
+/* Search box styles */
+.search_box {
+    position: relative;
+    margin: 12px 0 18px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.search-input {
+    width: 80%;
+    max-width: 360px;
+    padding: 12px 14px 12px 42px; /* space for icon */
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.95); /* off-white */
+    border-radius: 5px;
+    color: #062335;
+    font-size: 15px;
+    outline: none;
+    align-items: center;
+    box-shadow: 0 6px 18px rgba(2,6,23,0.45) inset;
+}
+.search-input::placeholder { color: #7a8891; }
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    opacity: 0.9;
+}
+
+/* Dropdown suggestions */
+.search-dropdown {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 92%;
+    max-width: 460px;
+    background: rgba(255,255,255,0.95);
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+    z-index: 50;
+    color: #062335;
+    overflow: hidden;
+}
+.search-dropdown .item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    color: #062335;
+    cursor: pointer;
+}
+.search-dropdown .item:hover { background: rgba(255,255,255,0.02); }
+.search-dropdown .meta { font-size: 13px; opacity: 0.8; }
+.watch-toggle-btn {
+    background: transparent;
+    color: cyan;
+    border: 1px solid rgba(156, 205, 218, 0.18);
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 13px;
+}
+.watch-toggle-btn.added { background: rgba(30,166,214,0.12); }
+
+.watching-list { list-style: none; padding: 0; margin: 10px 0 0 0; }
+.watch-item { padding: 8px 6px; border-bottom: 1px dashed rgba(255,255,255,0.03); text-align: left; }
+.watch-item.muted { color: rgba(255,255,255,0.5); }
+
+/* Add city modal styles */
+.modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.45);
+    z-index: 200;
+}
+.modal-content {
+    background: #07121a;
+    border: 1px solid rgba(30,166,214,0.12);
+    padding: 16px;
+    border-radius: 10px;
+    width: 360px;
+    box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+}
+.modal-content h3 { margin: 0 0 8px 0; color: cyan; }
+.form-row { display:flex; flex-direction:column; gap:6px; margin-bottom:8px; }
+.form-row label { color:#9fdff6; font-size:13px; }
+.form-row input { padding:8px 10px; border-radius:6px; border:1px solid rgba(255,255,255,0.06); background:#fff; }
+
+/* Add city button tweaks */
+#add-city-btn {
+    margin-bottom:8px;
+    border-color: cyan;
+    color: cyan;
+    background: transparent;
+    padding: 8px 12px;
 }

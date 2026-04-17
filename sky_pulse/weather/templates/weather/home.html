@@ -1,199 +1,374 @@
 {% load static %}
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SkyPulse | Real-Time Weather</title>
     <!-- TEMPLATE_TEST: updated -->
     <link rel="stylesheet" href="{% static 'weather/style.css' %}" />
-</head>
-<body>
-   <div class="container glass">
+  </head>
+  <body>
+    <div class="container glass">
       <div class="top-box">
-          <button id="add-city-btn" class="watch-toggle-btn header-add-btn">+ Add City</button>
-          <div class="header-brand"><h1 class="brand-title">SkyPulse</h1></div>
+        <button id="add-city-btn" class="watch-toggle-btn header-add-btn">
+          + Add City
+        </button>
+        <div class="header-brand"><h1 class="brand-title">SkyPulse</h1></div>
       </div>
-       <div class="bottom-row">
-           <div class="column">
-               <h3 class="watching-heading">Watching Cities</h3>
-               <div class="search_box">
-                   <form method="get" action="" onsubmit="return false;">
-                       <svg class="search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                           <path d="M21 21l-4.35-4.35" stroke="#0b7285" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                           <circle cx="11" cy="11" r="6" stroke="#0b7285" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                       </svg>
-                       <input id="city-search" class="search-input" type="text" name="search" placeholder="Search cities..." autocomplete="off" value="{{ request.GET.search }}">
-                       <div id="search-dropdown" class="search-dropdown" style="display:none;"></div>
-                   </form>
-               </div>
-               <ul class="watching-list">
-                   {% for city in watching_cities %}
-                       <li class="watch-item" data-id="{{ city.id }}">{{ city.name }}</li>
-                   {% empty %}
-                       <li class="watch-item muted">No cities being watched.</li>
-                   {% endfor %}
-               </ul>
-               
-               <!-- Add City Modal -->
-               <div id="add-city-modal" class="modal" style="display:none;">
-                   <div class="modal-content">
-                       <h3>Add City</h3>
-                       <div class="form-row">
-                           <label>Name</label>
-                           <input id="new-city-name" type="text" />
-                       </div>
-                       <div class="form-row">
-                           <label>Country</label>
-                           <input id="new-city-country" type="text" />
-                       </div>
-                       <div class="form-row" style="flex-direction:row; align-items:center; gap:8px;">
-                           <input id="new-city-watch" type="checkbox" checked />
-                           <label for="new-city-watch" style="margin:0; color:#9fdff6;">Watch list</label>
-                       </div>
-                       <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:12px;">
-                           <button id="add-city-cancel" class="watch-toggle-btn">Cancel</button>
-                           <button id="add-city-submit" class="watch-toggle-btn added">Add</button>
-                       </div>
-                   </div>
-               </div>
-           </div>
-           <div class="column"></div>
-           <div class="column">Detailed Metrics</div>
-       </div>
-   </div>
+      <div class="bottom-row">
+        <div class="column">
+          <h3 class="watching-heading">Watching Cities</h3>
+          <div class="search_box">
+            <form method="get" action="" onsubmit="return false;">
+              <svg
+                class="search-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  d="M21 21l-4.35-4.35"
+                  stroke="#0b7285"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <circle
+                  cx="11"
+                  cy="11"
+                  r="6"
+                  stroke="#0b7285"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <input
+                id="city-search"
+                class="search-input"
+                type="text"
+                name="search"
+                placeholder="Search cities..."
+                autocomplete="off"
+                value="{{ request.GET.search }}"
+              />
+              <div
+                id="search-dropdown"
+                class="search-dropdown"
+                style="display: none"
+              ></div>
+            </form>
+          </div>
+          <ul class="watching-list">
+            {% for city in watching_cities %}
+            <li class="watch-item" data-id="{{ city.id }}">{{ city.name }}</li>
+            {% empty %}
+            <li class="watch-item muted">No cities being watched.</li>
+            {% endfor %}
+          </ul>
+
+          <!-- Add City Modal -->
+          <div id="add-city-modal" class="modal" style="display: none">
+            <div class="modal-content">
+              <h3>Add City</h3>
+              <div class="form-row">
+                <label>Name</label>
+                <input id="new-city-name" type="text" />
+              </div>
+              <div class="form-row">
+                <label>Country</label>
+                <input id="new-city-country" type="text" />
+              </div>
+              <div
+                class="form-row"
+                style="flex-direction: row; align-items: center; gap: 8px"
+              >
+                <input id="new-city-watch" type="checkbox" checked />
+                <label for="new-city-watch" style="margin: 0; color: #9fdff6"
+                  >Watch list</label
+                >
+              </div>
+              <div
+                style="
+                  display: flex;
+                  gap: 8px;
+                  justify-content: flex-end;
+                  margin-top: 12px;
+                "
+              >
+                <button id="add-city-cancel" class="watch-toggle-btn">
+                  Cancel
+                </button>
+                <button id="add-city-submit" class="watch-toggle-btn added">
+                  Add
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="column" id="weather-main">
+          <div id="weather-content" class="weather-content-placeholder">
+            <p>Select a city to view weather data.</p>
+          </div>
+        </div>
+        <div class="column" id="weather-details">
+          <div id="weather-details-content" class="weather-details-placeholder">
+            <p>Detailed Metrics will appear here.</p>
+          </div>
+        </div>
+      </div>
+    </div>
     <script>
-    // helper to read csrf token cookie
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
+      // City selection and weather data fetch logic
+      (function () {
+        function renderWeather(data) {
+          const main = document.getElementById("weather-content");
+          const details = document.getElementById("weather-details-content");
+          if (data.error) {
+            main.innerHTML = `<p>${data.error}</p>`;
+            details.innerHTML = "";
+            return;
+          }
+
+
+          // Weather icon logic (simple: sunny/cloudy/rainy)
+          let icon = "☀️";
+          let desc = "Sunny";
+          if (data.weather && data.weather.toLowerCase().includes("cloud")) {
+            icon = "⛅";
+            desc = "Cloudy";
+          }
+          if (data.weather && data.weather.toLowerCase().includes("rain")) {
+            icon = "🌧️";
+            desc = "Rainy";
+          }
+
+          main.innerHTML = `
+                    <h2>${data.city}, ${data.country}</h2>
+                    <div class="weather-main-metrics">
+                        <div>${data.temperature}&deg;C</div>
+                    </div>
+                    <div class="weather-timestamp">Last updated: ${data.timestamp}</div>
+                `;
+          details.innerHTML = `
+                    <h3>Detailed Metrics</h3>
+                    <ul>
+                        <li><strong>Pressure:</strong> ${data.pressure} hPa</li>
+                        <li><strong>Humidity:</strong> ${data.humidity}%</li>
+                        <li><strong>Wind Speed:</strong> ${data.wind_speed} m/s</li>
+                    </ul>
+                `;
+        }
+
+        function selectCity(cityId) {
+          fetch(`/api/weather/${cityId}/`)
+            .then((r) => r.json())
+            .then((data) => renderWeather(data))
+            .catch(() => {
+              renderWeather({ error: "Failed to load weather data." });
+            });
+        }
+
+        document
+          .querySelector(".watching-list")
+          .addEventListener("click", function (e) {
+            const li = e.target.closest(".watch-item[data-id]");
+            if (li) {
+              // Highlight selected
+              document
+                .querySelectorAll(".watch-item")
+                .forEach((item) => item.classList.remove("selected"));
+              li.classList.add("selected");
+              selectCity(li.getAttribute("data-id"));
             }
+          });
+      })();
+      // helper to read csrf token cookie
+      function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+          const cookies = document.cookie.split(";");
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === name + "=") {
+              cookieValue = decodeURIComponent(
+                cookie.substring(name.length + 1),
+              );
+              break;
+            }
+          }
         }
         return cookieValue;
-    }
+      }
 
-    (function(){
-        const input = document.getElementById('city-search');
-        const dropdown = document.getElementById('search-dropdown');
+      (function () {
+        const input = document.getElementById("city-search");
+        const dropdown = document.getElementById("search-dropdown");
         let currentFetch = null;
         let timer = null;
 
-        function clearDropdown(){ dropdown.innerHTML = ''; dropdown.style.display = 'none'; }
+        function clearDropdown() {
+          dropdown.innerHTML = "";
+          dropdown.style.display = "none";
+        }
 
-        input.addEventListener('input', function(e){
-            const q = this.value.trim();
-            clearTimeout(timer);
-            if (!q) { clearDropdown(); return; }
-            timer = setTimeout(()=>{
-                fetch(`/api/cities/?q=${encodeURIComponent(q)}`)
-                .then(r=>r.json())
-                .then(data=>{
-                    dropdown.innerHTML = '';
-                    if (!data.results || data.results.length === 0){
-                        dropdown.innerHTML = '<div class="item">No results</div>';
-                        dropdown.style.display = 'block';
-                        return;
-                    }
-                    data.results.forEach(item => {
-                        const el = document.createElement('div');
-                        el.className = 'item';
-                        el.innerHTML = `<div class="label"><strong>${item.name}</strong><div class="meta">${item.country}</div></div>`;
-                        const btn = document.createElement('button');
-                        btn.className = 'watch-toggle-btn' + (item.is_watchlisted? ' added':'');
-                        btn.textContent = item.is_watchlisted ? 'Watchlisted' : '+ Watchlist';
-                        btn.addEventListener('click', function(ev){
-                            ev.stopPropagation();
-                            fetch(`/api/toggle-watch/${item.id}/`, {
-                                method: 'POST',
-                                headers: {
-                                    'X-CSRFToken': getCookie('csrftoken'),
-                                    'Accept': 'application/json'
-                                }
-                            }).then(r=>r.json()).then(resp=>{
-                                if (resp.is_watchlisted){
-                                    btn.classList.add('added'); btn.textContent = 'Watchlisted';
-                                    // add to watching list if not present
-                                    const existing = document.querySelector(`.watching-list li[data-id="${resp.id}"]`);
-                                    if (!existing){
-                                        const li = document.createElement('li');
-                                        li.className = 'watch-item';
-                                        li.setAttribute('data-id', resp.id);
-                                        li.textContent = resp.name;
-                                        const watchingList = document.querySelector('.watching-list');
-                                        if (watchingList) watchingList.appendChild(li);
-                                    }
-                                } else {
-                                    btn.classList.remove('added'); btn.textContent = '+ Watchlist';
-                                    // remove from watching list if present
-                                    const existing = document.querySelector(`.watching-list li[data-id="${resp.id}"]`);
-                                    if (existing) existing.remove();
-                                }
-                            }).catch(err=>{ console.error(err); });
-                        });
-                        el.appendChild(btn);
-                        el.addEventListener('click', function(){ input.value = item.name; clearDropdown(); });
-                        dropdown.appendChild(el);
-                    });
-                    dropdown.style.display = 'block';
-                }).catch(err=>{ console.error(err); });
-            }, 220);
+        input.addEventListener("input", function (e) {
+          const q = this.value.trim();
+          clearTimeout(timer);
+          if (!q) {
+            clearDropdown();
+            return;
+          }
+          timer = setTimeout(() => {
+            fetch(`/api/cities/?q=${encodeURIComponent(q)}`)
+              .then((r) => r.json())
+              .then((data) => {
+                dropdown.innerHTML = "";
+                if (!data.results || data.results.length === 0) {
+                  dropdown.innerHTML = '<div class="item">No results</div>';
+                  dropdown.style.display = "block";
+                  return;
+                }
+                data.results.forEach((item) => {
+                  const el = document.createElement("div");
+                  el.className = "item";
+                  el.innerHTML = `<div class="label"><strong>${item.name}</strong><div class="meta">${item.country}</div></div>`;
+                  const btn = document.createElement("button");
+                  btn.className =
+                    "watch-toggle-btn" + (item.is_watchlisted ? " added" : "");
+                  btn.textContent = item.is_watchlisted
+                    ? "Watchlisted"
+                    : "+ Watchlist";
+                  btn.addEventListener("click", function (ev) {
+                    ev.stopPropagation();
+                    fetch(`/api/toggle-watch/${item.id}/`, {
+                      method: "POST",
+                      headers: {
+                        "X-CSRFToken": getCookie("csrftoken"),
+                        Accept: "application/json",
+                      },
+                    })
+                      .then((r) => r.json())
+                      .then((resp) => {
+                        if (resp.is_watchlisted) {
+                          btn.classList.add("added");
+                          btn.textContent = "Watchlisted";
+                          // add to watching list if not present
+                          const existing = document.querySelector(
+                            `.watching-list li[data-id="${resp.id}"]`,
+                          );
+                          if (!existing) {
+                            const li = document.createElement("li");
+                            li.className = "watch-item";
+                            li.setAttribute("data-id", resp.id);
+                            li.textContent = resp.name;
+                            const watchingList =
+                              document.querySelector(".watching-list");
+                            if (watchingList) watchingList.appendChild(li);
+                          }
+                        } else {
+                          btn.classList.remove("added");
+                          btn.textContent = "+ Watchlist";
+                          // remove from watching list if present
+                          const existing = document.querySelector(
+                            `.watching-list li[data-id="${resp.id}"]`,
+                          );
+                          if (existing) existing.remove();
+                        }
+                      })
+                      .catch((err) => {
+                        console.error(err);
+                      });
+                  });
+                  el.appendChild(btn);
+                  el.addEventListener("click", function () {
+                    input.value = item.name;
+                    clearDropdown();
+                  });
+                  dropdown.appendChild(el);
+                });
+                dropdown.style.display = "block";
+              })
+              .catch((err) => {
+                console.error(err);
+              });
+          }, 220);
         });
 
-        document.addEventListener('click', function(e){ if (!dropdown.contains(e.target) && e.target !== input) clearDropdown(); });
-    })();
+        document.addEventListener("click", function (e) {
+          if (!dropdown.contains(e.target) && e.target !== input)
+            clearDropdown();
+        });
+      })();
 
-        // Add City modal logic
-        (function(){
-            const openBtn = document.getElementById('add-city-btn');
-            const modal = document.getElementById('add-city-modal');
-            const cancel = document.getElementById('add-city-cancel');
-            const submit = document.getElementById('add-city-submit');
-            const nameInput = document.getElementById('new-city-name');
-            const countryInput = document.getElementById('new-city-country');
-            const watchingList = document.querySelector('.watching-list');
+      // Add City modal logic
+      (function () {
+        const openBtn = document.getElementById("add-city-btn");
+        const modal = document.getElementById("add-city-modal");
+        const cancel = document.getElementById("add-city-cancel");
+        const submit = document.getElementById("add-city-submit");
+        const nameInput = document.getElementById("new-city-name");
+        const countryInput = document.getElementById("new-city-country");
+        const watchingList = document.querySelector(".watching-list");
 
-            function show(){ modal.style.display = 'flex'; nameInput.focus(); }
-            function hide(){ modal.style.display = 'none'; nameInput.value=''; countryInput.value=''; }
+        function show() {
+          modal.style.display = "flex";
+          nameInput.focus();
+        }
+        function hide() {
+          modal.style.display = "none";
+          nameInput.value = "";
+          countryInput.value = "";
+        }
 
-            openBtn.addEventListener('click', function(){ show(); });
-            cancel.addEventListener('click', function(){ hide(); });
+        openBtn.addEventListener("click", function () {
+          show();
+        });
+        cancel.addEventListener("click", function () {
+          hide();
+        });
 
-            submit.addEventListener('click', function(){
-                const name = nameInput.value.trim();
-                const country = countryInput.value.trim();
-                const watchChecked = document.getElementById('new-city-watch').checked;
-                if (!name || !country){ alert('Both fields are required'); return; }
-                const form = new FormData();
-                form.append('name', name);
-                form.append('country', country);
-                form.append('is_watchlisted', watchChecked ? '1' : '0');
-                fetch('/api/cities/add/', {
-                    method: 'POST',
-                    headers: { 'X-CSRFToken': getCookie('csrftoken') },
-                    body: form
-                }).then(r=>{
-                    if (!r.ok) throw new Error('Failed');
-                    return r.json();
-                }).then(data=>{
-                    // append to watching list only if watchlisted
-                    if (data.is_watchlisted){
-                        const li = document.createElement('li');
-                        li.className = 'watch-item';
-                        li.setAttribute('data-id', data.id);
-                        li.textContent = data.name;
-                        if (watchingList) watchingList.appendChild(li);
-                    }
-                    hide();
-                }).catch(err=>{ console.error(err); alert('Error adding city'); });
+        submit.addEventListener("click", function () {
+          const name = nameInput.value.trim();
+          const country = countryInput.value.trim();
+          const watchChecked =
+            document.getElementById("new-city-watch").checked;
+          if (!name || !country) {
+            alert("Both fields are required");
+            return;
+          }
+          const form = new FormData();
+          form.append("name", name);
+          form.append("country", country);
+          form.append("is_watchlisted", watchChecked ? "1" : "0");
+          fetch("/api/cities/add/", {
+            method: "POST",
+            headers: { "X-CSRFToken": getCookie("csrftoken") },
+            body: form,
+          })
+            .then((r) => {
+              if (!r.ok) throw new Error("Failed");
+              return r.json();
+            })
+            .then((data) => {
+              // append to watching list only if watchlisted
+              if (data.is_watchlisted) {
+                const li = document.createElement("li");
+                li.className = "watch-item";
+                li.setAttribute("data-id", data.id);
+                li.textContent = data.name;
+                if (watchingList) watchingList.appendChild(li);
+              }
+              hide();
+            })
+            .catch((err) => {
+              console.error(err);
+              alert("Error adding city");
             });
-        })();
+        });
+      })();
     </script>
-</body>
+  </body>
 </html>

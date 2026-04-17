@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+
 from weather import views
 
 urlpatterns = [
@@ -25,4 +26,5 @@ urlpatterns = [
     path('api/cities/', views.CitySearchView.as_view(), name='api-cities'),
     path('api/toggle-watch/<int:pk>/', views.ToggleWatchView.as_view(), name='api-toggle-watch'),
     path('api/cities/add/', views.CityCreateView.as_view(), name='api-city-create'),
+    path('api/weather/<int:pk>/', views.CityWeatherDataView.as_view(), name='api-city-weather'),
 ]

@@ -1,3 +1,7 @@
+from .models import WeatherData
+# API endpoint to get weather data for a city
+from django.views.decorators.csrf import csrf_exempt
+
 from django.shortcuts import render
 from django.views.generic import ListView, TemplateView
 from .models import City
@@ -78,3 +82,21 @@ class CityCreateView(View):
             return JsonResponse({'id': city.id, 'name': city.name, 'country': city.country, 'is_watchlisted': city.is_watchlisted})
         except Exception as e:
             return HttpResponseBadRequest(str(e))
+
+class CityWeatherDataView(View):
+    def get(self, request, pk, *args, **kwargs):
+        city = get_object_or_404(City, pk=pk)
+        # Get the latest weather data for the city
+        weather = WeatherData.objects.filter(city=city).order_by('-timestamp').first()
+        if not weather:
+            return JsonResponse({'error': 'No weather data found.'}, status=404)
+        data = {
+            'city': city.name,
+            'country': city.country,
+            'temperature': weather.temperature,
+            'humidity': weather.humidity,
+            'pressure': weather.pressure,
+            'wind_speed': weather.wind_speed,
+            'timestamp': weather.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+        }
+        return JsonResponse(data)

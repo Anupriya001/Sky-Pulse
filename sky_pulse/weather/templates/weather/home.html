@@ -7,6 +7,7 @@
     <title>SkyPulse | Real-Time Weather</title>
     <!-- TEMPLATE_TEST: updated -->
     <link rel="stylesheet" href="{% static 'weather/style.css' %}" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
     <div class="container glass">
@@ -132,7 +133,6 @@
             return;
           }
 
-
           // Weather icon logic (simple: sunny/cloudy/rainy)
           let icon = "☀️";
           let desc = "Sunny";
@@ -148,18 +148,190 @@
           main.innerHTML = `
                     <h2>${data.city}, ${data.country}</h2>
                     <div class="weather-main-metrics">
-                        <div>${data.temperature}&deg;C</div>
+                      <div class="weather-temperature">${data.temperature}<sup class="degree-symbol">&deg;C</sup></div>
                     </div>
-                    <div class="weather-timestamp">Last updated: ${data.timestamp}</div>
+                    <div class="weather-trend-label">Live Temperature Trend (&deg;C)</div>
+                    <div class="weather-trend-chart-container">
+                        <canvas id="temp-trend-chart"></canvas>
+                    </div>
+                    <div class="weather-timestamp">Last updated: <span class="timestamp-date">${data.timestamp}</span> </div>
                 `;
           details.innerHTML = `
                     <h3>Detailed Metrics</h3>
-                    <ul>
-                        <li><strong>Pressure:</strong> ${data.pressure} hPa</li>
-                        <li><strong>Humidity:</strong> ${data.humidity}%</li>
-                        <li><strong>Wind Speed:</strong> ${data.wind_speed} m/s</li>
+                    <ul class="metrics-list">
+                        <li><strong>Pressure:<br></strong> <span class="detailed-metrics-item">${data.pressure} hPa</span></li>
+                        <hr class="metric-separator" />
+                        <li><strong>Humidity:<br></strong> <span class="detailed-metrics-item">${data.humidity}%</span></li>
+                        <hr class="metric-separator" />
+                        <li><strong>Wind Speed:<br></strong> <span class="detailed-metrics-item">${data.wind_speed} m/s</span></li>
                     </ul>
                 `;
+
+          // Render temperature trend chart if data.trend exists
+          setTimeout(function () {
+            const chartCanvas = document.getElementById("temp-trend-chart");
+            if (window.tempTrendChart) window.tempTrendChart.destroy();
+            // Always show 10 days (including today) on x-axis
+            const now = new Date();
+            let labels = [];
+            let hourKeys = [];
+            for (let i = 4; i >= 0; i--) {
+              const d = new Date(now.getTime() - i * 60 * 60 * 1000);
+              // Format as HH:00 (24-hour)
+              const hourLabel =
+                d.getHours().toString().padStart(2, "0") + ":00";
+              labels.push(hourLabel);
+              // Use ISO string up to hour for matching (YYYY-MM-DDTHH)
+              hourKeys.push(d.toISOString().slice(0, 13));
+            }
+            let temps = Array(5).fill(0);
+            let showLine = false;
+            if (
+              data.trend &&
+              Array.isArray(data.trend) &&
+              data.trend.length > 0
+            ) {
+              // Map trend data to the correct hour in the 5-hour window
+              const tempMap = {};
+              data.trend.forEach((item) => {
+                // Accept item.time as 'YYYY-MM-DDTHH' or fallback to item.timestamp
+                let key =
+                  item.time ||
+                  (item.timestamp ? item.timestamp.slice(0, 13) : null);
+                if (!key && item.date)
+                  key = item.date + "T" + (item.hour || "00");
+                if (key) tempMap[key] = item.temperature;
+              });
+              // Ensure current temperature is included for current hour
+              const currentHourKey = now.toISOString().slice(0, 13);
+              if (
+                tempMap[currentHourKey] === undefined &&
+                data.temperature !== undefined
+              ) {
+                tempMap[currentHourKey] = data.temperature;
+              }
+              temps = hourKeys.map((key) =>
+                tempMap[key] !== undefined ? tempMap[key] : 0,
+              );
+              showLine = temps.some((v) => v !== 0);
+            }
+            chartCanvas.style.display = "";
+            chartCanvas.width = undefined;
+            chartCanvas.height = undefined;
+            chartCanvas.style.width = "100%";
+            chartCanvas.style.height = "100%";
+            // Find max temp for y-axis
+            let maxTemp =
+              temps.filter((v) => v !== null).length > 0
+                ? Math.max(...temps.filter((v) => v !== null))
+                : 50;
+            let minTemp =
+              temps.filter((v) => v !== null).length > 0
+                ? Math.min(...temps.filter((v) => v !== null))
+                : 0;
+
+            const stepSize = Math.round((maxTemp - minTemp) / 5) || 5;
+
+            window.tempTrendChart = new Chart(chartCanvas.getContext("2d"), {
+              type: "line",
+              data: {
+                labels: labels,
+                datasets: showLine
+                  ? [
+                      {
+                        data: temps,
+                        borderColor: "cyan",
+                        backgroundColor: "rgba(0,255,255,0.10)",
+                        pointRadius: 2,
+                        tension: 0.35,
+                        fill: true,
+                        borderWidth: 3,
+                        spanGaps: false, // connect all points, including zeros
+                      },
+                    ]
+                  : [
+                      {
+                        data: [],
+                        borderColor: "rgba(0,0,0,0)",
+                        backgroundColor: "rgba(0,0,0,0)",
+                        pointRadius: 0,
+                        fill: false,
+                        borderWidth: 0,
+                      },
+                    ],
+              },
+              options: {
+                plugins: {
+                  legend: { display: false },
+                  tooltip: { enabled: true },
+                },
+                scales: {
+                  x: {
+                    display: true,
+                    title: {
+                      display: true,
+                      text: "Time",
+                      color: "#b6f6ff",
+                      font: { size: 12 },
+                    },
+                    grid: {
+                      color: "rgba(0,255,255,0.12)",
+                      z: 0,
+                      drawOnChartArea: true,
+                      drawTicks: true,
+                      drawBorder: true,
+                      display: true,
+                      borderColor: "rgba(0,255,255,0.12)",
+                      tickColor: "rgba(0,255,255,0.12)",
+                    },
+                    ticks: {
+                      color: "#b6f6ff",
+                      font: { size: 11 },
+                      maxRotation: 0,
+                      minRotation: 0,
+                      autoSkip: false,
+                      maxTicksLimit: 10,
+                    },
+                  },
+                  y: {
+                    display: true,
+                    title: {
+                      display: true,
+                      text: "Temperature (°C)",
+                      color: "#b6f6ff",
+                      font: { size: 12 },
+                    },
+                    grid: {
+                      color: "rgba(0,255,255,0.12)",
+                      z: 0,
+                      drawOnChartArea: true,
+                      drawTicks: true,
+                      drawBorder: true,
+                      display: true,
+                      borderColor: "rgba(0,255,255,0.12)",
+                      tickColor: "rgba(0,255,255,0.12)",
+                    },
+                    ticks: {
+                      color: "#b6f6ff",
+                      font: { size: 11 },
+                      stepSize: stepSize,
+                    },
+                    min: 0,
+                    max: Math.ceil(maxTemp),
+                  },
+                },
+                elements: {
+                  line: { borderWidth: 3, z: 1 },
+                  point: { radius: 2, z: 1 },
+                },
+                animation: false,
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 1.2,
+                layout: { padding: 0 },
+              },
+            });
+          }, 200);
         }
 
         function selectCity(cityId) {
@@ -171,19 +343,27 @@
             });
         }
 
-        document
-          .querySelector(".watching-list")
-          .addEventListener("click", function (e) {
-            const li = e.target.closest(".watch-item[data-id]");
-            if (li) {
-              // Highlight selected
-              document
-                .querySelectorAll(".watch-item")
-                .forEach((item) => item.classList.remove("selected"));
-              li.classList.add("selected");
-              selectCity(li.getAttribute("data-id"));
-            }
-          });
+        const watchingList = document.querySelector(".watching-list");
+        watchingList.addEventListener("click", function (e) {
+          const li = e.target.closest(".watch-item[data-id]");
+          if (li) {
+            // Highlight selected
+            document
+              .querySelectorAll(".watch-item")
+              .forEach((item) => item.classList.remove("selected"));
+            li.classList.add("selected");
+            selectCity(li.getAttribute("data-id"));
+          }
+        });
+
+        // Select first city by default
+        window.addEventListener("DOMContentLoaded", function () {
+          const firstCity = watchingList.querySelector(".watch-item[data-id]");
+          if (firstCity) {
+            firstCity.classList.add("selected");
+            selectCity(firstCity.getAttribute("data-id"));
+          }
+        });
       })();
       // helper to read csrf token cookie
       function getCookie(name) {

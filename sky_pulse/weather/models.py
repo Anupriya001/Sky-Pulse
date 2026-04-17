@@ -19,6 +19,27 @@ class WeatherData(models.Model):
     humidity = models.FloatField()
     pressure = models.FloatField()
     wind_speed = models.FloatField()
+    weather_type = models.CharField(
+        max_length=20,
+        choices=[
+            ('Clear', 'Clear'),
+            ('Clouds', 'Clouds'),
+            ('Rain', 'Rain'),
+            ('Snow', 'Snow'),
+            ('Drizzle', 'Drizzle'),
+            ('Thunderstorm', 'Thunderstorm'),
+            ('Mist', 'Mist'),
+            ('Smoke', 'Smoke'),
+            ('Haze', 'Haze'),
+            ('Dust', 'Dust'),
+            ('Fog', 'Fog'),
+            ('Sand', 'Sand'),
+            ('Ash', 'Ash'),
+            ('Squall', 'Squall'),
+            ('Tornado', 'Tornado')
+        ],
+        default='Clear'
+    )
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

@@ -85,9 +85,19 @@ class CityCreateView(View):
 
 class CityWeatherDataView(View):
     def get(self, request, pk, *args, **kwargs):
+        from datetime import timedelta
+        from django.utils import timezone
         city = get_object_or_404(City, pk=pk)
+        now = timezone.now()
+        ten_days_ago = now - timedelta(days=10)
+        # Get weather data for the last 10 days, ordered by timestamp ascending
+        trend_qs = WeatherData.objects.filter(city=city, timestamp__gte=ten_days_ago).order_by('timestamp')
+        trend = [
+            {'date': w.timestamp.strftime('%Y-%m-%d'), 'temperature': w.temperature}
+            for w in trend_qs
+        ]
         # Get the latest weather data for the city
-        weather = WeatherData.objects.filter(city=city).order_by('-timestamp').first()
+        weather = trend_qs.last() or WeatherData.objects.filter(city=city).order_by('-timestamp').first()
         if not weather:
             return JsonResponse({'error': 'No weather data found.'}, status=404)
         data = {
@@ -98,5 +108,6 @@ class CityWeatherDataView(View):
             'pressure': weather.pressure,
             'wind_speed': weather.wind_speed,
             'timestamp': weather.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            'trend': trend
         }
         return JsonResponse(data)

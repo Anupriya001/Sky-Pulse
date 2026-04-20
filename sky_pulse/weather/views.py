@@ -1,6 +1,7 @@
 from .models import WeatherData
 # API endpoint to get weather data for a city
 from django.views.decorators.csrf import csrf_exempt
+from geopy.geocoders import Nominatim
 
 from django.shortcuts import render
 from django.views.generic import ListView, TemplateView
@@ -78,36 +79,77 @@ class CityCreateView(View):
         if not name or not country:
             return HttpResponseBadRequest('Both name and country are required.')
         try:
-            city = City.objects.create(name=name, country=country, is_watchlisted=(watch != '0'))
+            geolocator = Nominatim(user_agent="SkyPulse_Weather_App")
+            location = geolocator.geocode(f"{name}, {country}")
+            if location:
+                latitude = location.latitude
+                longitude = location.longitude
+            else:
+                raise ValueError("Could not geocode the provided city and country.")
+            city = City.objects.create(name=name, country=country, is_watchlisted=(watch != '0'), latitude=latitude, longitude=longitude)
             return JsonResponse({'id': city.id, 'name': city.name, 'country': city.country, 'is_watchlisted': city.is_watchlisted})
         except Exception as e:
             return HttpResponseBadRequest(str(e))
 
 class CityWeatherDataView(View):
     def get(self, request, pk, *args, **kwargs):
+        """
+        Return latest weather plus an hourly trend for the past 5 hours (including current hour).
+        Trend items use a `time` key in the format `YYYY-MM-DDTHH` so the frontend can match hours.
+        Missing hours are filled with 0; current hour will prefer the latest stored value.
+        """
         from datetime import timedelta
         from django.utils import timezone
+
         city = get_object_or_404(City, pk=pk)
         now = timezone.now()
-        ten_days_ago = now - timedelta(days=10)
-        # Get weather data for the last 10 days, ordered by timestamp ascending
-        trend_qs = WeatherData.objects.filter(city=city, timestamp__gte=ten_days_ago).order_by('timestamp')
-        trend = [
-            {'date': w.timestamp.strftime('%Y-%m-%d'), 'temperature': w.temperature}
-            for w in trend_qs
-        ]
-        # Get the latest weather data for the city
-        weather = trend_qs.last() or WeatherData.objects.filter(city=city).order_by('-timestamp').first()
-        if not weather:
+
+        # Build list of the past 10 hours with 1-hour spacing (oldest -> newest)
+        # Produces 10 points: now-9h, now-8h, ..., now-1h, now (oldest -> newest)
+        hours = []
+        for i in range(9, -1, -1):
+            d = (now - timedelta(hours=i)).replace(minute=0, second=0, microsecond=0)
+            hours.append(d)
+
+        # Query any stored WeatherData from the earliest hour onwards
+        earliest = hours[0]
+        stored_qs = WeatherData.objects.filter(city=city, timestamp__gte=earliest).order_by('timestamp')
+
+        # Map stored entries by hour key 'YYYY-MM-DDTHH' -> temperature
+        temp_map = {}
+        for w in stored_qs:
+            key = w.timestamp.strftime('%Y-%m-%dT%H')
+            # If there are multiple entries per hour, prefer the latest one
+            temp_map[key] = w.temperature
+
+        # Latest weather entry (any time) to use as fallback for current hour
+        latest = WeatherData.objects.filter(city=city).order_by('-timestamp').first()
+        if not latest:
             return JsonResponse({'error': 'No weather data found.'}, status=404)
+
+        latest_key = latest.timestamp.strftime('%Y-%m-%dT%H')
+
+        # Build trend for each hour key (use stored value, else 0; prefer latest for current hour)
+        trend = []
+        for d in hours:
+            key = d.strftime('%Y-%m-%dT%H')
+            if key in temp_map:
+                temp = temp_map[key]
+            elif key == latest_key and latest.temperature is not None:
+                temp = latest.temperature
+            else:
+                temp = 0
+            trend.append({'time': key, 'temperature': temp})
+
         data = {
             'city': city.name,
             'country': city.country,
-            'temperature': weather.temperature,
-            'humidity': weather.humidity,
-            'pressure': weather.pressure,
-            'wind_speed': weather.wind_speed,
-            'timestamp': weather.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
-            'trend': trend
+            'temperature': latest.temperature,
+            'humidity': latest.humidity,
+            'pressure': latest.pressure,
+            'wind_speed': latest.wind_speed,
+            'timestamp': latest.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            'trend': trend,
         }
+
         return JsonResponse(data)

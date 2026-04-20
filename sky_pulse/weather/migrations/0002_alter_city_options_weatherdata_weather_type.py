@@ -17,6 +17,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='weatherdata',
             name='weather_type',
-            field=models.CharField(choices=[('Clear', 'Clear'), ('Clouds', 'Clouds'), ('Rain', 'Rain'), ('Snow', 'Snow'), ('Drizzle', 'Drizzle'), ('Thunderstorm', 'Thunderstorm'), ('Mist', 'Mist'), ('Smoke', 'Smoke'), ('Haze', 'Haze'), ('Dust', 'Dust'), ('Fog', 'Fog'), ('Sand', 'Sand'), ('Ash', 'Ash'), ('Squall', 'Squall'), ('Tornado', 'Tornado')], default='Clear', max_length=20),
+            field=models.CharField(choices=[('Clear', 'Clear'), ('Sunny', 'Sunny'), ('Clouds', 'Clouds'), ('Rain', 'Rain'), ('Snow', 'Snow'), ('Drizzle', 'Drizzle'), ('Thunderstorm', 'Thunderstorm'), ('Mist', 'Mist'), ('Smoke', 'Smoke'), ('Haze', 'Haze'), ('Dust', 'Dust'), ('Fog', 'Fog'), ('Sand', 'Sand'), ('Ash', 'Ash'), ('Squall', 'Squall'), ('Tornado', 'Tornado')], default='Clear', max_length=20),
         ),
     ]

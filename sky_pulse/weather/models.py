@@ -5,6 +5,8 @@ class City(models.Model):
     name = models.CharField(max_length=100)
     country = models.CharField(max_length=100)
     is_watchlisted = models.BooleanField(default=False)
+    latitude = models.FloatField(null=True)
+    longitude = models.FloatField(null=True)
     last_updated = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -23,6 +25,7 @@ class WeatherData(models.Model):
         max_length=20,
         choices=[
             ('Clear', 'Clear'),
+            ('Sunny', 'Sunny'),
             ('Clouds', 'Clouds'),
             ('Rain', 'Rain'),
             ('Snow', 'Snow'),

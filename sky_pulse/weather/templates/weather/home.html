@@ -149,6 +149,7 @@
                     <h2>${data.city}, ${data.country}</h2>
                     <div class="weather-main-metrics">
                       <div class="weather-temperature">${data.temperature}<sup class="degree-symbol">&deg;C</sup></div>
+                      <div class="weather-icon">${icon} ${desc}</div>
                     </div>
                     <div class="weather-trend-label">Live Temperature Trend (&deg;C)</div>
                     <div class="weather-trend-chart-container">
@@ -207,7 +208,7 @@
                 data.temperature !== undefined
               ) {
                 tempMap[currentHourKey] = data.temperature;
-              }
+            }
               temps = hourKeys.map((key) =>
                 tempMap[key] !== undefined ? tempMap[key] : 0,
               );
@@ -234,28 +235,28 @@
               data: {
                 labels: labels,
                 datasets: showLine
-                  ? [
-                      {
+                    ? [
+                        {
                         data: temps,
-                        borderColor: "cyan",
-                        backgroundColor: "rgba(0,255,255,0.10)",
+                          borderColor: "cyan",
+                          backgroundColor: "rgba(0,255,255,0.10)",
                         pointRadius: 2,
                         tension: 0.35,
                         fill: true,
                         borderWidth: 3,
                         spanGaps: false, // connect all points, including zeros
-                      },
-                    ]
-                  : [
-                      {
-                        data: [],
-                        borderColor: "rgba(0,0,0,0)",
-                        backgroundColor: "rgba(0,0,0,0)",
-                        pointRadius: 0,
-                        fill: false,
-                        borderWidth: 0,
-                      },
-                    ],
+                        },
+                      ]
+                    : [
+                        {
+                          data: [],
+                          borderColor: "rgba(0,0,0,0)",
+                          backgroundColor: "rgba(0,0,0,0)",
+                          pointRadius: 0,
+                          fill: false,
+                          borderWidth: 0,
+                        },
+                      ],
               },
               options: {
                 plugins: {
@@ -308,13 +309,13 @@
                       borderColor: "rgba(0,255,255,0.12)",
                       tickColor: "rgba(0,255,255,0.12)",
                     },
-                          ticks: {
-                            color: "#b6f6ff",
-                            font: { size: 11 },
-                            stepSize: stepSize,
-                            autoSkip: false,
-                            maxTicksLimit: labels.length,
-                          },
+                    ticks: {
+                      color: "#b6f6ff",
+                      font: { size: 11 },
+                      stepSize: stepSize,
+                      autoSkip: false,
+                      maxTicksLimit: labels.length,
+                    },
                           min: 0,
                           max: yMax,
                   },
